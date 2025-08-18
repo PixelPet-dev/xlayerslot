@@ -5,6 +5,7 @@ const AudioControls = () => {
   const [isEnabled, setIsEnabled] = useState(true);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [volume, setVolume] = useState(0.7);
+  const [isMinimized, setIsMinimized] = useState(true);
 
   useEffect(() => {
     // 组件挂载时开始播放背景音乐
@@ -41,29 +42,39 @@ const AudioControls = () => {
   return (
     <div className="fixed top-4 right-4 z-50">
       {/* 主控制面板 */}
-      <div className="bg-black/80 backdrop-blur-lg rounded-lg p-4 border border-purple-400/30">
-        <div className="flex items-center space-x-3 mb-3">
-          <h3 className="text-white font-semibold text-sm">🎵 音效控制</h3>
-        </div>
-        
-        {/* 音效开关 */}
-        <div className="flex items-center space-x-2 mb-3">
-          <button
-            onClick={toggleSound}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-              isEnabled 
-                ? 'bg-green-500 hover:bg-green-600' 
-                : 'bg-red-500 hover:bg-red-600'
-            }`}
-          >
-            <span className="text-white text-xs">
-              {isEnabled ? '🔊' : '🔇'}
-            </span>
+      <div className="bg-black/80 backdrop-blur-lg rounded-lg border border-purple-400/30 transition-all duration-300">
+        {/* 标题栏 - 始终显示 */}
+        <div className="flex items-center justify-between p-3 cursor-pointer hover:bg-white/5 transition-colors rounded-lg" onClick={() => setIsMinimized(!isMinimized)}>
+          <div className="flex items-center space-x-2">
+            <span className="text-lg">{isMusicPlaying && isEnabled ? '🎵' : '🔇'}</span>
+            {!isMinimized && <h3 className="text-white font-semibold text-sm">音效控制</h3>}
+          </div>
+          <button className="text-white hover:text-purple-300 transition-colors text-sm">
+            {isMinimized ? '⬇️' : '⬆️'}
           </button>
-          <span className="text-gray-300 text-xs">
-            {isEnabled ? '音效开启' : '音效关闭'}
-          </span>
         </div>
+
+        {/* 详细控制面板 - 可收起 */}
+        {!isMinimized && (
+          <div className="px-3 pb-3 border-t border-purple-400/20">
+            {/* 音效开关 */}
+            <div className="flex items-center space-x-2 mb-3">
+              <button
+                onClick={toggleSound}
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                  isEnabled
+                    ? 'bg-green-500 hover:bg-green-600'
+                    : 'bg-red-500 hover:bg-red-600'
+                }`}
+              >
+                <span className="text-white text-xs">
+                  {isEnabled ? '🔊' : '🔇'}
+                </span>
+              </button>
+              <span className="text-gray-300 text-xs">
+                {isEnabled ? '音效开启' : '音效关闭'}
+              </span>
+            </div>
 
         {/* 背景音乐控制 */}
         <div className="flex items-center space-x-2 mb-3">
@@ -140,6 +151,8 @@ const AudioControls = () => {
             </button>
           </div>
         </div>
+          </div>
+        )}
       </div>
 
       {/* 音效状态指示器 */}
