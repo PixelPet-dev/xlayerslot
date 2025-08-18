@@ -221,9 +221,8 @@ const LotteryGame = ({ account, onGameComplete }) => {
       return;
     }
 
-    // 第一阶段：开始转轮动画，等待用户确认交易
+    // 第一阶段：准备交易，但不开始转轮
     setIsPlaying(true);
-    setIsReelSpinning(true);
     setError(null);
     setGameResult(null);
 
@@ -241,7 +240,7 @@ const LotteryGame = ({ account, onGameComplete }) => {
       // 获取当前 Gas 价格
       const gasPrice = await web3.eth.getGasPrice();
 
-      // 第二阶段：发送交易（转轮继续转动，等待用户确认）
+      // 第二阶段：发送交易，用户确认支付后才开始转轮
       const receipt = await contract.methods
         .playLottery(amount)
         .send({
@@ -250,7 +249,10 @@ const LotteryGame = ({ account, onGameComplete }) => {
           gasPrice: gasPrice,
         });
 
-      // 第三阶段：交易确认后，解析结果并停止转轮
+      // 第三阶段：交易确认成功，现在开始转轮动画
+      setIsReelSpinning(true);
+
+      // 第四阶段：解析游戏结果
       const gameEvent = receipt.events.GamePlayed;
       if (gameEvent) {
         const { symbols, betAmount: betAmt, winAmount } = gameEvent.returnValues;
@@ -261,18 +263,20 @@ const LotteryGame = ({ account, onGameComplete }) => {
           isWin: BigInt(winAmount) > BigInt(0)
         };
 
-        // 设置转轮最终结果并开始停止动画
+        // 设置转轮最终结果
         setReelSymbols(symbols.map(s => s.toString()));
         setGameResult(result);
 
-        // 立即停止转轮转动，开始停止动画序列
-        setIsReelSpinning(false);
-
-        // 等待转轮停止动画完成后显示结果弹窗
+        // 让转轮转动一段时间后再停止
         setTimeout(() => {
-          setShowResultModal(true);
-          setIsPlaying(false);
-        }, 2500);
+          setIsReelSpinning(false);
+
+          // 等待转轮停止动画完成后显示结果弹窗
+          setTimeout(() => {
+            setShowResultModal(true);
+            setIsPlaying(false);
+          }, 2500);
+        }, 1500); // 转轮转动1.5秒后开始停止
       } else {
         // 如果没有获取到游戏事件，立即停止
         setIsReelSpinning(false);
@@ -420,7 +424,7 @@ const LotteryGame = ({ account, onGameComplete }) => {
             {isPlaying ? (
               <div className="flex items-center justify-center space-x-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                <span>{isReelSpinning ? '等待交易确认...' : '处理结果中...'}</span>
+                <span>{isReelSpinning ? '🎰 转轮旋转中...' : '💳 等待交易确认...'}</span>
               </div>
             ) : (
               `开始抽奖 (${betAmount || '0'} ${tokenInfo.symbol})`
