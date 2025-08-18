@@ -8,9 +8,9 @@ const AudioControls = () => {
   const [isMinimized, setIsMinimized] = useState(true);
 
   useEffect(() => {
-    // 组件挂载时开始播放背景音乐
-    audioManager.playBackgroundMusic();
-    setIsMusicPlaying(true);
+    // 不在组件挂载时自动播放，等待用户交互
+    // audioManager.playBackgroundMusic();
+    // setIsMusicPlaying(true);
   }, []);
 
   const toggleSound = () => {
@@ -24,8 +24,12 @@ const AudioControls = () => {
       audioManager.stopBackgroundMusic();
       setIsMusicPlaying(false);
     } else {
-      audioManager.playBackgroundMusic();
-      setIsMusicPlaying(true);
+      try {
+        audioManager.playBackgroundMusic();
+        setIsMusicPlaying(true);
+      } catch (error) {
+        console.warn('音频播放失败，可能需要用户交互:', error);
+      }
     }
   };
 

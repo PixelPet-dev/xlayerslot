@@ -123,47 +123,130 @@ const LotteryGame = ({ account, onGameComplete }) => {
 
   // 加载游戏记录
   const loadGameHistory = async () => {
-    if (!account) return;
+    if (!account) {
+      console.log('没有连接钱包，跳过加载游戏记录');
+      return;
+    }
 
     setHistoryLoading(true);
     try {
+      console.log('开始加载游戏记录，账户:', account);
+
       const web3 = Web3Config.getWeb3();
       const contract = new web3.eth.Contract(
         Web3Config.CONTRACT_CONFIG.abi,
         Web3Config.CONTRACT_CONFIG.address
       );
 
+      console.log('合约地址:', Web3Config.CONTRACT_CONFIG.address);
+
+      // 测试合约是否可访问
+      try {
+        const isActive = await contract.methods.isActive().call();
+        console.log('合约状态 isActive:', isActive);
+      } catch (testError) {
+        console.error('合约访问测试失败:', testError);
+        setGameHistory([]);
+        return;
+      }
+
       // 获取当前区块号
       const currentBlock = await web3.eth.getBlockNumber();
-      const fromBlock = Math.max(0, Number(currentBlock) - 10000); // 查询最近10000个区块
+      console.log('当前区块号:', currentBlock);
+
+      // 减少查询范围，避免查询过多数据
+      const fromBlock = Math.max(0, Number(currentBlock) - 1000); // 只查询最近1000个区块
+      console.log('查询区块范围:', fromBlock, 'to latest');
 
       // 通过事件日志获取用户游戏记录
+      console.log('开始查询 GamePlayed 事件...');
       const events = await contract.getPastEvents('GamePlayed', {
         filter: { player: account },
         fromBlock: fromBlock,
         toBlock: 'latest'
       });
 
+      console.log('找到事件数量:', events.length);
+
+      if (events.length === 0) {
+        console.log('没有找到游戏记录');
+        setGameHistory([]);
+        return;
+      }
+
       // 转换事件数据为游戏记录格式
-      const gameHistory = events.slice(-10).map((event, index) => {
-        const { player, symbols, betAmount, winAmount, timestamp } = event.returnValues;
-        return {
-          gameId: Number(event.blockNumber) + '_' + Number(event.transactionIndex),
+      const gameHistory = events.slice(-10).map((event) => {
+        console.log('处理事件:', event);
+        const { player, gameId, symbols, betAmount, winAmount, tokenContract } = event.returnValues;
+
+        const record = {
+          gameId: `${event.blockNumber}_${event.transactionIndex}`,
           player: player,
-          symbols: symbols,
-          betAmount: betAmount.toString(),
-          winAmount: winAmount.toString(),
-          timestamp: timestamp.toString(),
-          blockNumber: Number(event.blockNumber),
+          symbols: Array.isArray(symbols) ? symbols : [symbols],
+          betAmount: betAmount ? betAmount.toString() : '0',
+          winAmount: winAmount ? winAmount.toString() : '0',
+          timestamp: Date.now().toString(), // 使用当前时间作为时间戳
+          blockNumber: event.blockNumber,
           transactionHash: event.transactionHash
         };
+
+        console.log('转换后的记录:', record);
+        return record;
       }).reverse(); // 最新的在前面
 
+      console.log('最终游戏记录:', gameHistory);
       setGameHistory(gameHistory);
     } catch (error) {
       console.error('加载游戏记录失败:', error);
-      // 如果加载失败，设置空数组而不是保持加载状态
-      setGameHistory([]);
+      console.error('错误详情:', error.message);
+      console.error('错误堆栈:', error.stack);
+
+      // 尝试简化的查询方式
+      try {
+        console.log('尝试简化查询...');
+        const web3 = Web3Config.getWeb3();
+        const contract = new web3.eth.Contract(
+          Web3Config.CONTRACT_CONFIG.abi,
+          Web3Config.CONTRACT_CONFIG.address
+        );
+
+        // 只查询最近100个区块
+        const currentBlock = await web3.eth.getBlockNumber();
+        const fromBlock = Math.max(0, Number(currentBlock) - 100);
+
+        const events = await contract.getPastEvents('GamePlayed', {
+          fromBlock: fromBlock,
+          toBlock: 'latest'
+        });
+
+        // 过滤出当前用户的记录
+        const userEvents = events.filter(event =>
+          event.returnValues.player &&
+          event.returnValues.player.toLowerCase() === account.toLowerCase()
+        );
+
+        console.log('简化查询找到用户事件:', userEvents.length);
+
+        if (userEvents.length > 0) {
+          const gameHistory = userEvents.slice(-10).map((event) => ({
+            gameId: `${event.blockNumber}_${event.transactionIndex}`,
+            player: event.returnValues.player,
+            symbols: Array.isArray(event.returnValues.symbols) ? event.returnValues.symbols : [event.returnValues.symbols],
+            betAmount: event.returnValues.betAmount ? event.returnValues.betAmount.toString() : '0',
+            winAmount: event.returnValues.winAmount ? event.returnValues.winAmount.toString() : '0',
+            timestamp: Date.now().toString(), // 使用当前时间
+            blockNumber: event.blockNumber,
+            transactionHash: event.transactionHash
+          })).reverse();
+
+          setGameHistory(gameHistory);
+        } else {
+          setGameHistory([]);
+        }
+      } catch (fallbackError) {
+        console.error('简化查询也失败了:', fallbackError);
+        setGameHistory([]);
+      }
     } finally {
       setHistoryLoading(false);
     }
