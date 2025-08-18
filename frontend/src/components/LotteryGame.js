@@ -197,7 +197,7 @@ const LotteryGame = ({ account, onGameComplete }) => {
     if (!betAmount || !gameConfig) return;
 
     const amount = Web3Config.parseTokenAmount(betAmount);
-    
+
     // 验证下注金额
     if (BigInt(amount) < BigInt(gameConfig.minBet)) {
       setError(`下注金额不能少于 ${Web3Config.formatTokenAmountInteger(gameConfig.minBet)} ${tokenInfo?.symbol || 'tokens'}`);
@@ -221,6 +221,7 @@ const LotteryGame = ({ account, onGameComplete }) => {
       return;
     }
 
+    // 第一阶段：开始转轮动画，等待用户确认交易
     setIsPlaying(true);
     setIsReelSpinning(true);
     setError(null);
@@ -240,6 +241,7 @@ const LotteryGame = ({ account, onGameComplete }) => {
       // 获取当前 Gas 价格
       const gasPrice = await web3.eth.getGasPrice();
 
+      // 第二阶段：发送交易（转轮继续转动，等待用户确认）
       const receipt = await contract.methods
         .playLottery(amount)
         .send({
@@ -248,7 +250,7 @@ const LotteryGame = ({ account, onGameComplete }) => {
           gasPrice: gasPrice,
         });
 
-      // 解析游戏结果事件
+      // 第三阶段：交易确认后，解析结果并停止转轮
       const gameEvent = receipt.events.GamePlayed;
       if (gameEvent) {
         const { symbols, betAmount: betAmt, winAmount } = gameEvent.returnValues;
@@ -259,14 +261,22 @@ const LotteryGame = ({ account, onGameComplete }) => {
           isWin: BigInt(winAmount) > BigInt(0)
         };
 
-        // 设置转轮最终结果
+        // 设置转轮最终结果并开始停止动画
         setReelSymbols(symbols.map(s => s.toString()));
         setGameResult(result);
 
-        // 延迟显示结果弹窗，等待转轮动画完成
+        // 立即停止转轮转动，开始停止动画序列
+        setIsReelSpinning(false);
+
+        // 等待转轮停止动画完成后显示结果弹窗
         setTimeout(() => {
           setShowResultModal(true);
+          setIsPlaying(false);
         }, 2500);
+      } else {
+        // 如果没有获取到游戏事件，立即停止
+        setIsReelSpinning(false);
+        setIsPlaying(false);
       }
 
       await loadUserBalance();
@@ -275,12 +285,10 @@ const LotteryGame = ({ account, onGameComplete }) => {
     } catch (error) {
       console.error('抽奖失败:', error);
       setError('抽奖失败: ' + error.message);
-    } finally {
-      // 延迟停止转轮和游戏状态
-      setTimeout(() => {
-        setIsReelSpinning(false);
-        setIsPlaying(false);
-      }, 2000);
+
+      // 发生错误时立即停止转轮
+      setIsReelSpinning(false);
+      setIsPlaying(false);
     }
   };
 
@@ -412,7 +420,7 @@ const LotteryGame = ({ account, onGameComplete }) => {
             {isPlaying ? (
               <div className="flex items-center justify-center space-x-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                <span>抽奖中...</span>
+                <span>{isReelSpinning ? '等待交易确认...' : '处理结果中...'}</span>
               </div>
             ) : (
               `开始抽奖 (${betAmount || '0'} ${tokenInfo.symbol})`
