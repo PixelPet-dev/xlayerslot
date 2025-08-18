@@ -142,8 +142,9 @@ const LotteryGame = ({ account, onGameComplete }) => {
 
       // 测试合约是否可访问
       try {
-        const isActive = await contract.methods.isActive().call();
-        console.log('合约状态 isActive:', isActive);
+        const gameConfig = await contract.methods.gameConfig().call();
+        console.log('合约状态 gameConfig:', gameConfig);
+        console.log('游戏是否激活:', gameConfig.isActive);
       } catch (testError) {
         console.error('合约访问测试失败:', testError);
         setGameHistory([]);

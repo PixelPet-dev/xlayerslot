@@ -42,10 +42,10 @@ const ContractTest = () => {
         addResult('合约连接', '✅ 合约实例创建成功');
 
         // 测试 5: 合约方法调用
-        addResult('合约方法测试', '调用 isActive()...');
+        addResult('合约方法测试', '调用 gameConfig()...');
         try {
-          const isActive = await contract.methods.isActive().call();
-          addResult('合约方法测试', `✅ isActive: ${isActive}`);
+          const gameConfig = await contract.methods.gameConfig().call();
+          addResult('合约方法测试', `✅ gameConfig.isActive: ${gameConfig.isActive}`);
         } catch (error) {
           addResult('合约方法测试', '❌ 调用失败', error.message);
         }
@@ -53,25 +53,40 @@ const ContractTest = () => {
         // 测试 6: 游戏配置
         addResult('游戏配置', '获取中...');
         try {
-          const minBet = await contract.methods.minBet().call();
-          const maxBet = await contract.methods.maxBet().call();
-          addResult('游戏配置', `✅ 最小下注: ${minBet}, 最大下注: ${maxBet}`);
+          const gameConfig = await contract.methods.gameConfig().call();
+          addResult('游戏配置', `✅ 最小下注: ${gameConfig.minBet}, 最大下注: ${gameConfig.maxBet}`);
         } catch (error) {
           addResult('游戏配置', '❌ 获取失败', error.message);
         }
 
-        // 测试 7: 事件查询
+        // 测试 7: 其他合约方法
+        addResult('其他方法测试', '测试中...');
+        try {
+          const totalUsers = await contract.methods.totalUsers().call();
+          const totalGameRecords = await contract.methods.totalGameRecords().call();
+          const paused = await contract.methods.paused().call();
+          addResult('其他方法测试', `✅ 用户总数: ${totalUsers}, 游戏记录: ${totalGameRecords}, 暂停状态: ${paused}`);
+        } catch (error) {
+          addResult('其他方法测试', '❌ 调用失败', error.message);
+        }
+
+        // 测试 8: 事件查询
         addResult('事件查询', '查询最近事件...');
         try {
           const currentBlock = await web3.eth.getBlockNumber();
           const fromBlock = Math.max(0, Number(currentBlock) - 100);
-          
+
           const events = await contract.getPastEvents('GamePlayed', {
             fromBlock: fromBlock,
             toBlock: 'latest'
           });
-          
+
           addResult('事件查询', `✅ 找到 ${events.length} 个 GamePlayed 事件`);
+
+          if (events.length > 0) {
+            const latestEvent = events[events.length - 1];
+            addResult('最新事件', `✅ 区块: ${latestEvent.blockNumber}, 玩家: ${latestEvent.returnValues.player}`);
+          }
         } catch (error) {
           addResult('事件查询', '❌ 查询失败', error.message);
         }
