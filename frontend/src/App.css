@@ -583,3 +583,153 @@ body::before {
 .animate-coin-fall {
   animation: coin-fall linear;
 }
+
+/* 老虎机转轮动画特效 */
+@keyframes slot-spin {
+  0% {
+    transform: translateY(0) rotateX(0deg);
+  }
+  25% {
+    transform: translateY(-20px) rotateX(90deg);
+  }
+  50% {
+    transform: translateY(-40px) rotateX(180deg);
+  }
+  75% {
+    transform: translateY(-20px) rotateX(270deg);
+  }
+  100% {
+    transform: translateY(0) rotateX(360deg);
+  }
+}
+
+@keyframes slot-blur {
+  0%, 100% {
+    filter: blur(0px);
+    transform: scale(1);
+  }
+  50% {
+    filter: blur(2px);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes slot-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.6);
+  }
+}
+
+@keyframes slot-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes reel-roll {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-300px);
+  }
+}
+
+@keyframes machine-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes symbol-flip {
+  0% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(180deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+/* 转轮动画类 */
+.slot-spinning {
+  animation: slot-spin 0.3s linear infinite, slot-blur 0.6s ease-in-out infinite;
+}
+
+.slot-glow {
+  animation: slot-glow 1s ease-in-out infinite;
+}
+
+.slot-bounce {
+  animation: slot-bounce 0.5s ease-in-out;
+}
+
+.reel-rolling {
+  animation: reel-roll 0.2s linear infinite;
+}
+
+.machine-shaking {
+  animation: machine-shake 0.1s linear infinite;
+}
+
+.symbol-flipping {
+  animation: symbol-flip 0.4s linear infinite;
+}
+
+/* 3D转轮效果 */
+.slot-reel-3d {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.slot-symbol-3d {
+  transition: transform 0.3s ease;
+  transform-style: preserve-3d;
+}
+
+.slot-symbol-3d.spinning {
+  animation: slot-spin 0.2s linear infinite;
+}
+
+/* 转轮容器特效 */
+.slot-machine-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.slot-machine-container.spinning {
+  animation: machine-shake 0.1s linear infinite;
+}
+
+.slot-machine-container::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #ff6b35, #ffd700, #ff6b35, #ffd700);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.slot-machine-container.spinning::before {
+  opacity: 1;
+  animation: slot-glow 0.5s ease-in-out infinite;
+}

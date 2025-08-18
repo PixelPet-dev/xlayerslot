@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Web3Config from '../config/web3';
 import LotteryResultModal from './LotteryResultModal';
+import SlotReels from './SlotReels';
 
 const LotteryGame = ({ account, onGameComplete }) => {
   const { t } = useTranslation();
@@ -22,6 +23,10 @@ const LotteryGame = ({ account, onGameComplete }) => {
   const [gameHistory, setGameHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [showResultModal, setShowResultModal] = useState(false);
+
+  // 转轮动画状态
+  const [reelSymbols, setReelSymbols] = useState(['0', '0', '0']);
+  const [isReelSpinning, setIsReelSpinning] = useState(false);
 
   useEffect(() => {
     loadGameData();
@@ -66,9 +71,10 @@ const LotteryGame = ({ account, onGameComplete }) => {
         await loadUserBalance(tokenAddress);
       }
 
-      // 生成模拟结果
+      // 生成模拟结果并初始化转轮
       const simulation = await contract.methods.simulateLottery(Date.now()).call();
       setSimulationResult(simulation);
+      setReelSymbols(simulation.map(s => s.toString()));
     } catch (error) {
       console.error('Load game data failed:', error);
       setError(t('game.loadGameDataFailed'));
@@ -216,6 +222,7 @@ const LotteryGame = ({ account, onGameComplete }) => {
     }
 
     setIsPlaying(true);
+    setIsReelSpinning(true);
     setError(null);
     setGameResult(null);
 
@@ -251,8 +258,15 @@ const LotteryGame = ({ account, onGameComplete }) => {
           winAmount: winAmount,
           isWin: BigInt(winAmount) > BigInt(0)
         };
+
+        // 设置转轮最终结果
+        setReelSymbols(symbols.map(s => s.toString()));
         setGameResult(result);
-        setShowResultModal(true); // 显示结果弹窗
+
+        // 延迟显示结果弹窗，等待转轮动画完成
+        setTimeout(() => {
+          setShowResultModal(true);
+        }, 2500);
       }
 
       await loadUserBalance();
@@ -262,13 +276,22 @@ const LotteryGame = ({ account, onGameComplete }) => {
       console.error('抽奖失败:', error);
       setError('抽奖失败: ' + error.message);
     } finally {
-      setIsPlaying(false);
+      // 延迟停止转轮和游戏状态
+      setTimeout(() => {
+        setIsReelSpinning(false);
+        setIsPlaying(false);
+      }, 2000);
     }
   };
 
   // 快捷下注
   const handleQuickBet = (amount) => {
     setBetAmount(Web3Config.formatTokenAmountInteger(amount));
+  };
+
+  // 转轮动画完成回调
+  const handleSpinComplete = () => {
+    console.log('转轮动画完成');
   };
 
   if (!gameConfig || !tokenInfo) {
@@ -307,21 +330,17 @@ const LotteryGame = ({ account, onGameComplete }) => {
           </p>
         </div>
 
-        {/* 模拟结果展示 */}
-        {simulationResult && (
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-white mb-4 text-center">预览效果</h3>
-            <div className="flex justify-center space-x-4 mb-4">
-              {simulationResult.map((symbol, index) => (
-                <div key={index} className="bg-white bg-opacity-20 rounded-lg p-4 text-center">
-                  <div className="text-4xl">
-                    {Web3Config.SYMBOL_EMOJIS[Web3Config.SYMBOL_NAMES[parseInt(symbol)]]}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* 老虎机转轮 */}
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold text-white mb-4 text-center">
+            {isReelSpinning ? '🎰 转轮旋转中...' : '🎯 准备开始'}
+          </h3>
+          <SlotReels
+            isSpinning={isReelSpinning}
+            symbols={reelSymbols}
+            onSpinComplete={handleSpinComplete}
+          />
+        </div>
 
         {/* 用户余额 */}
         <div className="bg-blue-500 bg-opacity-20 rounded-lg p-4 mb-6">
