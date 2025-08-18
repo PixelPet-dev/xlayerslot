@@ -314,11 +314,8 @@ const LotteryGame = ({ account, onGameComplete }) => {
             <div className="flex justify-center space-x-4 mb-4">
               {simulationResult.map((symbol, index) => (
                 <div key={index} className="bg-white bg-opacity-20 rounded-lg p-4 text-center">
-                  <div className="text-4xl mb-2">
+                  <div className="text-4xl">
                     {Web3Config.SYMBOL_EMOJIS[Web3Config.SYMBOL_NAMES[parseInt(symbol)]]}
-                  </div>
-                  <div className="text-sm text-gray-300">
-                    {Web3Config.SYMBOL_NAMES[parseInt(symbol)]}
                   </div>
                 </div>
               ))}
@@ -413,11 +410,8 @@ const LotteryGame = ({ account, onGameComplete }) => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {payoutRates.map((rate, index) => (
             <div key={index} className="bg-white bg-opacity-10 rounded-lg p-3 text-center">
-              <div className="text-2xl mb-1">
+              <div className="text-2xl mb-2">
                 {Web3Config.SYMBOL_EMOJIS[Web3Config.SYMBOL_NAMES[index]]}
-              </div>
-              <div className="text-sm text-gray-300 mb-1">
-                {Web3Config.SYMBOL_NAMES[index]}
               </div>
               <div className="text-white font-semibold">
                 {(parseInt(rate) / 100).toFixed(1)}x
