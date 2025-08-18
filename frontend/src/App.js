@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Web3Config from './config/web3';
 import WalletConnection from './components/WalletConnection';
+import UserRegistration from './components/UserRegistration';
 import LotteryGame from './components/LotteryGame';
 import UserDashboard from './components/UserDashboard';
+import LanguageSwitcher from './components/LanguageSwitcher';
+import './i18n';
 import './App.css';
 
 function App() {
+  const { t } = useTranslation();
   const [account, setAccount] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
@@ -35,7 +40,7 @@ function App() {
         await autoRegisterUser(currentAccount);
       }
     } catch (error) {
-      console.error('检查连接失败:', error);
+      console.error('Check connection failed:', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -158,7 +163,7 @@ function App() {
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="text-white text-xl">加载中...</p>
+          <p className="text-white text-xl">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -176,6 +181,10 @@ function App() {
                 <h1 className="text-3xl font-bold text-yellow-400 neon-text">XLucky Slot</h1>
                 <p className="text-sm text-green-400 pixel-text">X Layer Casino</p>
               </div>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <LanguageSwitcher />
             </div>
             
             {isConnected && (
@@ -198,9 +207,9 @@ function App() {
                 <button
                   onClick={handleDisconnect}
                   className="retro-card bg-red-600 bg-opacity-30 hover:bg-opacity-50 border-red-400 px-3 py-2 text-xs transition-all duration-300 transform hover:scale-105"
-                  title="断开钱包连接"
+                  title={t('wallet.disconnect')}
                 >
-                  <span className="text-red-300 pixel-text">🔌 断开</span>
+                  <span className="text-red-300 pixel-text">🔌 {t('common.disconnect')}</span>
                 </button>
               </div>
             )}
@@ -248,7 +257,7 @@ function App() {
           <div className="text-center">
             <h3 className="text-xl font-bold text-white mb-4">Xlayer Slot Game</h3>
             <p className="text-gray-300 mb-4">
-              基于 X Layer 区块链的去中心化抽奖游戏
+              {t('footer.description')}
             </p>
             <div className="flex justify-center space-x-6 text-sm text-gray-400">
               <a 
@@ -257,15 +266,15 @@ function App() {
                 rel="noopener noreferrer"
                 className="hover:text-white transition-colors"
               >
-                区块浏览器
+                {t('footer.blockExplorer')}
               </a>
-              <a 
+              <a
                 href={`https://www.oklink.com/xlayer/address/${Web3Config.CONTRACT_CONFIG.address}`}
-                target="_blank" 
+                target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-white transition-colors"
               >
-                合约地址
+                {t('footer.contractAddress')}
               </a>
               <span>Chain ID: 196</span>
             </div>

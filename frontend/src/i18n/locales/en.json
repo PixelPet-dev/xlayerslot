@@ -1,0 +1,129 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "close": "Close",
+    "continue": "Continue",
+    "retry": "Retry",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "approve": "Approve",
+    "approving": "Approving...",
+    "approved": "Approved",
+    "balance": "Balance",
+    "amount": "Amount",
+    "address": "Address",
+    "transaction": "Transaction",
+    "gas": "Gas",
+    "fee": "Fee"
+  },
+  "wallet": {
+    "connect": "Connect Wallet",
+    "connecting": "Connecting...",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "notInstalled": "Please install MetaMask or other Web3 wallet",
+    "wrongNetwork": "Wrong network, please switch to X Layer",
+    "switchNetwork": "Switch Network",
+    "addNetwork": "Add Network",
+    "connectionFailed": "Connection failed",
+    "disconnectFailed": "Disconnect failed",
+    "noAccounts": "No wallet accounts found"
+  },
+  "game": {
+    "title": "🎰 Lottery Game",
+    "subtitle": "Use {{symbol}} tokens to play lottery and win big rewards!",
+    "preview": "Preview Effect",
+    "userBalance": "Wallet Balance:",
+    "betAmount": "Bet Amount ({{symbol}})",
+    "betPlaceholder": "Min: {{min}}, Max: {{max}}",
+    "quickBet": "Quick Bet:",
+    "startGame": "Start Lottery ({{amount}} {{symbol}})",
+    "playing": "Playing...",
+    "needApproval": "Please approve tokens first",
+    "insufficientBalance": "Insufficient balance",
+    "minBetError": "Bet amount cannot be less than {{min}} {{symbol}}",
+    "maxBetError": "Bet amount cannot exceed {{max}} {{symbol}}",
+    "approveTokens": "Approve {{amount}} {{symbol}}",
+    "gameNotAvailable": "Game Not Available",
+    "gameNotAvailableDesc": "Administrator has not set game tokens yet, please try again later",
+    "loadingGameData": "Loading game data...",
+    "loadGameDataFailed": "Failed to load game data",
+    "loadTokenInfoFailed": "Failed to load token info",
+    "loadUserBalanceFailed": "Failed to load user balance",
+    "loadGameHistoryFailed": "Failed to load game history",
+    "approveFailed": "Approval failed",
+    "lotteryFailed": "Lottery failed"
+  },
+  "results": {
+    "congratulations": "Congratulations!",
+    "youWon": "You Won!",
+    "sorry": "Sorry, No Win",
+    "betAmount": "Bet Amount:",
+    "winAmount": "Win Amount:",
+    "netProfit": "Net Profit:",
+    "loss": "Loss:",
+    "continueGame": "Continue Game",
+    "shareWin": "Share Win! 🎉",
+    "winMessage": "🍀 Congratulations on your good luck! Keep it up!",
+    "loseMessage": "💪 Don't give up, your lucky moment is coming!"
+  },
+  "payouts": {
+    "title": "Payout Table",
+    "note": "* Three identical symbols get full payout, two identical symbols get 1/4 payout"
+  },
+  "history": {
+    "title": "🕒 Game History",
+    "loading": "Loading game history...",
+    "noHistory": "No game history",
+    "noHistoryDesc": "Start your first game!",
+    "bet": "Bet:",
+    "noWin": "No Win",
+    "updateEvery10s": "Updates every 10 seconds"
+  },
+  "registration": {
+    "welcome": "Welcome to BONK Lottery",
+    "pleaseRegister": "Please register a user account to start playing",
+    "chooseNickname": "Choose Your Nickname",
+    "nicknamePlaceholder": "Enter nickname (max 50 characters)",
+    "charactersCount": "{{count}}/50 characters",
+    "nicknameRequired": "Please enter a nickname",
+    "nicknameTooLong": "Nickname cannot exceed 50 characters",
+    "registering": "Registering...",
+    "registerAccount": "Register Account",
+    "registrationInfo": "Registration Information",
+    "registrationInfoList": [
+      "• Registration requires a small Gas fee",
+      "• Nickname can be modified later",
+      "• You can start lottery games after registration",
+      "• All game records are saved on blockchain"
+    ],
+    "feeInfo": "Fee Information",
+    "estimatedGas": "Estimated Gas Fee:",
+    "registrationFee": "Registration Fee:",
+    "free": "Free",
+    "registrationSuccess": "Registration successful",
+    "registrationFailed": "Registration failed, please try again"
+  },
+  "dashboard": {
+    "pendingRewards": "🎁 PENDING REWARDS",
+    "claimRewards": "CLAIM REWARDS",
+    "claiming": "CLAIMING...",
+    "claimFailed": "Claim rewards failed"
+  },
+  "footer": {
+    "title": "Xlayer Slot Game",
+    "description": "Decentralized lottery game based on X Layer blockchain",
+    "blockExplorer": "Block Explorer",
+    "contractAddress": "Contract Address"
+  },
+  "errors": {
+    "checkConnectionFailed": "Failed to check connection",
+    "invalidEthereumAddress": "Invalid ethereum address",
+    "userCheckFailed": "User check failed",
+    "loadDashboardDataFailed": "Load dashboard data failed"
+  }
+}

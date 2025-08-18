@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Web3Config from '../config/web3';
 import LotteryResultModal from './LotteryResultModal';
 
 const LotteryGame = ({ account, onGameComplete }) => {
+  const { t } = useTranslation();
   const [gameConfig, setGameConfig] = useState(null);
   const [quickBetOptions, setQuickBetOptions] = useState([]);
   const [payoutRates, setPayoutRates] = useState([]);
@@ -68,8 +70,8 @@ const LotteryGame = ({ account, onGameComplete }) => {
       const simulation = await contract.methods.simulateLottery(Date.now()).call();
       setSimulationResult(simulation);
     } catch (error) {
-      console.error('加载游戏数据失败:', error);
-      setError('加载游戏数据失败');
+      console.error('Load game data failed:', error);
+      setError(t('game.loadGameDataFailed'));
     }
   };
 
@@ -87,7 +89,7 @@ const LotteryGame = ({ account, onGameComplete }) => {
 
       setTokenInfo({ name, symbol, decimals, address: tokenAddress });
     } catch (error) {
-      console.error('加载代币信息失败:', error);
+      console.error('Load token info failed:', error);
     }
   };
 
@@ -274,7 +276,7 @@ const LotteryGame = ({ account, onGameComplete }) => {
       <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 border border-white border-opacity-20">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="text-white">加载游戏数据中...</p>
+          <p className="text-white">{t('game.loadingGameData')}</p>
         </div>
       </div>
     );
@@ -285,8 +287,8 @@ const LotteryGame = ({ account, onGameComplete }) => {
       <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 border border-white border-opacity-20">
         <div className="text-center">
           <div className="text-6xl mb-4">⚠️</div>
-          <h3 className="text-xl font-bold text-white mb-2">游戏暂未开放</h3>
-          <p className="text-gray-300">管理员尚未设置游戏代币，请稍后再试</p>
+          <h3 className="text-xl font-bold text-white mb-2">{t('game.gameNotAvailable')}</h3>
+          <p className="text-gray-300">{t('game.gameNotAvailableDesc')}</p>
         </div>
       </div>
     );
@@ -299,9 +301,9 @@ const LotteryGame = ({ account, onGameComplete }) => {
       {/* 游戏主界面 */}
       <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 border border-white border-opacity-20">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-white mb-2">🎰 抽奖游戏</h2>
+          <h2 className="text-3xl font-bold text-white mb-2">{t('game.title')}</h2>
           <p className="text-gray-300">
-            使用 {tokenInfo.symbol} 代币进行抽奖，赢取丰厚奖励！
+            {t('game.subtitle', { symbol: tokenInfo.symbol })}
           </p>
         </div>
 
