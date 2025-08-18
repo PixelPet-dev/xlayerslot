@@ -133,23 +133,37 @@ const LotteryGame = ({ account, onGameComplete }) => {
         Web3Config.CONTRACT_CONFIG.address
       );
 
-      // 获取用户游戏记录
-      const userGameHistory = await contract.methods.getUserGameHistory(account).call();
+      // 获取当前区块号
+      const currentBlock = await web3.eth.getBlockNumber();
+      const fromBlock = Math.max(0, currentBlock - 10000); // 查询最近10000个区块
 
-      // 获取详细的游戏记录
-      const detailedHistory = await Promise.all(
-        userGameHistory.slice(-10).map(async (gameId) => { // 只取最近10条
-          const record = await contract.methods.gameRecords(gameId).call();
-          return {
-            ...record,
-            gameId: gameId
-          };
-        })
-      );
+      // 通过事件日志获取用户游戏记录
+      const events = await contract.getPastEvents('GamePlayed', {
+        filter: { player: account },
+        fromBlock: fromBlock,
+        toBlock: 'latest'
+      });
 
-      setGameHistory(detailedHistory.reverse()); // 最新的在前面
+      // 转换事件数据为游戏记录格式
+      const gameHistory = events.slice(-10).map((event, index) => {
+        const { player, symbols, betAmount, winAmount, timestamp } = event.returnValues;
+        return {
+          gameId: event.blockNumber + '_' + event.transactionIndex,
+          player: player,
+          symbols: symbols,
+          betAmount: betAmount,
+          winAmount: winAmount,
+          timestamp: timestamp,
+          blockNumber: event.blockNumber,
+          transactionHash: event.transactionHash
+        };
+      }).reverse(); // 最新的在前面
+
+      setGameHistory(gameHistory);
     } catch (error) {
       console.error('加载游戏记录失败:', error);
+      // 如果加载失败，设置空数组而不是保持加载状态
+      setGameHistory([]);
     } finally {
       setHistoryLoading(false);
     }
