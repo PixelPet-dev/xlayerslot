@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Web3Config from '../config/web3';
+import audioManager from '../utils/audioManager';
 
 const SlotReels = ({ isSpinning, symbols, onSpinComplete }) => {
   const [currentSymbols, setCurrentSymbols] = useState(['0', '0', '0']);
@@ -17,7 +18,10 @@ const SlotReels = ({ isSpinning, symbols, onSpinComplete }) => {
   const startSpinAnimation = () => {
     setSpinPhase('spinning');
     setReelStates([true, true, true]);
-    
+
+    // 播放转轮音效序列
+    audioManager.playSpinSequence();
+
     // 快速随机切换符号
     const spinInterval = setInterval(() => {
       setCurrentSymbols([
@@ -35,12 +39,14 @@ const SlotReels = ({ isSpinning, symbols, onSpinComplete }) => {
       setTimeout(() => {
         setReelStates([false, true, true]);
         setCurrentSymbols(prev => [symbols[0], prev[1], prev[2]]);
+        audioManager.playSound('stop'); // 播放停止音效
       }, 500);
 
       // 第二个转轮停止
       setTimeout(() => {
         setReelStates([false, false, true]);
         setCurrentSymbols(prev => [symbols[0], symbols[1], prev[2]]);
+        audioManager.playSound('stop'); // 播放停止音效
       }, 1000);
 
       // 第三个转轮停止
@@ -49,7 +55,10 @@ const SlotReels = ({ isSpinning, symbols, onSpinComplete }) => {
         setCurrentSymbols(symbols);
         setSpinPhase('stopped');
         clearInterval(spinInterval);
-        
+
+        // 停止转轮音效序列
+        audioManager.stopSpinSequence();
+
         // 播放停止动画
         setTimeout(() => {
           setSpinPhase('idle');

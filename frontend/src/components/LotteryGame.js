@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import Web3Config from '../config/web3';
 import LotteryResultModal from './LotteryResultModal';
 import SlotReels from './SlotReels';
+import AudioControls from './AudioControls';
+import audioManager from '../utils/audioManager';
 
 const LotteryGame = ({ account, onGameComplete }) => {
   const { t } = useTranslation();
@@ -160,6 +162,9 @@ const LotteryGame = ({ account, onGameComplete }) => {
       return;
     }
 
+    // 播放点击音效
+    audioManager.playSound('click');
+
     setIsApproving(true);
     setError(null);
 
@@ -195,6 +200,9 @@ const LotteryGame = ({ account, onGameComplete }) => {
   // 开始抽奖
   const handlePlay = async () => {
     if (!betAmount || !gameConfig) return;
+
+    // 播放点击音效
+    audioManager.playSound('click');
 
     const amount = Web3Config.parseTokenAmount(betAmount);
 
@@ -271,8 +279,19 @@ const LotteryGame = ({ account, onGameComplete }) => {
         setTimeout(() => {
           setIsReelSpinning(false);
 
-          // 等待转轮停止动画完成后显示结果弹窗
+          // 等待转轮停止动画完成后显示结果弹窗和播放音效
           setTimeout(() => {
+            // 根据结果播放不同音效
+            if (result.isWin) {
+              // 检查是否是大奖（三个相同符号）
+              const isJackpot = symbols[0] === symbols[1] && symbols[1] === symbols[2];
+              if (isJackpot) {
+                audioManager.playSound('jackpot');
+              } else {
+                audioManager.playSound('win');
+              }
+            }
+
             setShowResultModal(true);
             setIsPlaying(false);
           }, 2500);
@@ -333,6 +352,9 @@ const LotteryGame = ({ account, onGameComplete }) => {
 
   return (
     <div className="space-y-6">
+      {/* 音频控制组件 */}
+      <AudioControls />
+
       {/* 游戏主界面 */}
       <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 border border-white border-opacity-20">
         <div className="text-center mb-8">
