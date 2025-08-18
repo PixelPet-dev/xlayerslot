@@ -135,7 +135,7 @@ const LotteryGame = ({ account, onGameComplete }) => {
 
       // 获取当前区块号
       const currentBlock = await web3.eth.getBlockNumber();
-      const fromBlock = Math.max(0, currentBlock - 10000); // 查询最近10000个区块
+      const fromBlock = Math.max(0, Number(currentBlock) - 10000); // 查询最近10000个区块
 
       // 通过事件日志获取用户游戏记录
       const events = await contract.getPastEvents('GamePlayed', {
@@ -148,13 +148,13 @@ const LotteryGame = ({ account, onGameComplete }) => {
       const gameHistory = events.slice(-10).map((event, index) => {
         const { player, symbols, betAmount, winAmount, timestamp } = event.returnValues;
         return {
-          gameId: event.blockNumber + '_' + event.transactionIndex,
+          gameId: Number(event.blockNumber) + '_' + Number(event.transactionIndex),
           player: player,
           symbols: symbols,
-          betAmount: betAmount,
-          winAmount: winAmount,
-          timestamp: timestamp,
-          blockNumber: event.blockNumber,
+          betAmount: betAmount.toString(),
+          winAmount: winAmount.toString(),
+          timestamp: timestamp.toString(),
+          blockNumber: Number(event.blockNumber),
           transactionHash: event.transactionHash
         };
       }).reverse(); // 最新的在前面
