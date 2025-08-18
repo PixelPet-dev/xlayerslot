@@ -6,6 +6,7 @@ import UserRegistration from './components/UserRegistration';
 import LotteryGame from './components/LotteryGame';
 import UserDashboard from './components/UserDashboard';
 import LanguageSwitcher from './components/LanguageSwitcher';
+import ContractTest from './components/ContractTest';
 import './i18n';
 import './App.css';
 
@@ -19,6 +20,7 @@ function App() {
   const [error, setError] = useState(null);
   const [isMockMode, setIsMockMode] = useState(false);
   const [userBalance, setUserBalance] = useState('0');
+  const [showDebug, setShowDebug] = useState(false);
 
   // 检查钱包连接状态
   useEffect(() => {
@@ -242,8 +244,21 @@ function App() {
               onRefresh={refreshUserInfo}
             />
             
+            {/* 调试按钮 */}
+            <div className="text-center">
+              <button
+                onClick={() => setShowDebug(!showDebug)}
+                className="bg-gray-600 hover:bg-gray-700 text-white text-xs px-3 py-1 rounded"
+              >
+                {showDebug ? '隐藏调试' : '显示调试'}
+              </button>
+            </div>
+
+            {/* 调试面板 */}
+            {showDebug && <ContractTest />}
+
             {/* 抽奖游戏 */}
-            <LotteryGame 
+            <LotteryGame
               account={account}
               onGameComplete={refreshUserInfo}
             />
