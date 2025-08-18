@@ -21,7 +21,7 @@ export const CONTRACT_CONFIG = {
 };
 
 // 代币合约地址
-export const TOKEN_CONTRACT_ADDRESS = process.env.REACT_APP_TOKEN_ADDRESS || '0x181236a3422aB68d70728fF9F35a834E7c6b5551';
+export const TOKEN_CONTRACT_ADDRESS = process.env.REACT_APP_TOKEN_ADDRESS || '0x798095d5BF06edeF0aEB82c10DCDa5a92f58834E';
 
 // ERC20 代币标准 ABI (使用从 abis.js 导入的完整 ABI)
 export const ERC20_ABI = IMPORTED_ERC20_ABI;
