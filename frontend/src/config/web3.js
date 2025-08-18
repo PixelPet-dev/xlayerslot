@@ -45,8 +45,8 @@ export const SYMBOL_EMOJIS = {
   Orange: '🍊',
   Plum: '🟣',
   Bell: '🔔',
-  Bar: '📊',
-  Seven: '7️⃣',
+  Bar: '⭐',
+  Seven: '🎯',
   Jackpot: '💎'
 };
 
