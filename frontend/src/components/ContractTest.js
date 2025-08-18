@@ -70,25 +70,42 @@ const ContractTest = () => {
           addResult('其他方法测试', '❌ 调用失败', error.message);
         }
 
-        // 测试 8: 事件查询
+        // 测试 8: 事件查询（保守策略）
         addResult('事件查询', '查询最近事件...');
         try {
           const currentBlock = await web3.eth.getBlockNumber();
-          const fromBlock = Math.max(0, Number(currentBlock) - 100);
+          const fromBlock = Math.max(0, Number(currentBlock) - 10); // 只查询最近10个区块
+
+          addResult('事件查询', `查询区块范围: ${fromBlock} - ${currentBlock}`);
 
           const events = await contract.getPastEvents('GamePlayed', {
             fromBlock: fromBlock,
-            toBlock: 'latest'
+            toBlock: Number(currentBlock)
           });
 
           addResult('事件查询', `✅ 找到 ${events.length} 个 GamePlayed 事件`);
 
           if (events.length > 0) {
             const latestEvent = events[events.length - 1];
-            addResult('最新事件', `✅ 区块: ${latestEvent.blockNumber}, 玩家: ${latestEvent.returnValues.player}`);
+            addResult('最新事件', `✅ 区块: ${latestEvent.blockNumber}, 玩家: ${latestEvent.returnValues.player.substring(0, 10)}...`);
+          } else {
+            addResult('事件说明', '📝 没有找到事件可能是正常的，如果还没有人玩游戏');
           }
         } catch (error) {
-          addResult('事件查询', '❌ 查询失败', error.message);
+          addResult('事件查询', '❌ 查询失败', error.message || JSON.stringify(error));
+
+          // 尝试更保守的查询
+          try {
+            addResult('备用查询', '尝试查询单个区块...');
+            const currentBlock = await web3.eth.getBlockNumber();
+            const events = await contract.getPastEvents('GamePlayed', {
+              fromBlock: Number(currentBlock),
+              toBlock: Number(currentBlock)
+            });
+            addResult('备用查询', `✅ 当前区块事件: ${events.length}`);
+          } catch (backupError) {
+            addResult('备用查询', '❌ 备用查询也失败', backupError.message);
+          }
         }
 
       } catch (error) {

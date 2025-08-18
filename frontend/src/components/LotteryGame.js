@@ -155,28 +155,37 @@ const LotteryGame = ({ account, onGameComplete }) => {
       const currentBlock = await web3.eth.getBlockNumber();
       console.log('当前区块号:', currentBlock);
 
-      // 减少查询范围，避免查询过多数据
-      const fromBlock = Math.max(0, Number(currentBlock) - 1000); // 只查询最近1000个区块
+      // 大幅减少查询范围，避免查询过多数据
+      const fromBlock = Math.max(0, Number(currentBlock) - 100); // 只查询最近100个区块
       console.log('查询区块范围:', fromBlock, 'to latest');
 
       // 通过事件日志获取用户游戏记录
       console.log('开始查询 GamePlayed 事件...');
+
+      // 分步查询，先不使用过滤器
       const events = await contract.getPastEvents('GamePlayed', {
-        filter: { player: account },
         fromBlock: fromBlock,
         toBlock: 'latest'
       });
 
-      console.log('找到事件数量:', events.length);
+      console.log('查询到的所有事件:', events.length);
 
-      if (events.length === 0) {
-        console.log('没有找到游戏记录');
+      // 手动过滤用户事件
+      const userEvents = events.filter(event => {
+        const eventPlayer = event.returnValues.player;
+        return eventPlayer && eventPlayer.toLowerCase() === account.toLowerCase();
+      });
+
+      console.log('找到用户事件数量:', userEvents.length);
+
+      if (userEvents.length === 0) {
+        console.log('没有找到用户的游戏记录');
         setGameHistory([]);
         return;
       }
 
       // 转换事件数据为游戏记录格式
-      const gameHistory = events.slice(-10).map((event) => {
+      const gameHistory = userEvents.slice(-10).map((event) => {
         console.log('处理事件:', event);
         const { player, gameId, symbols, betAmount, winAmount, tokenContract } = event.returnValues;
 
@@ -201,24 +210,29 @@ const LotteryGame = ({ account, onGameComplete }) => {
       console.error('加载游戏记录失败:', error);
       console.error('错误详情:', error.message);
       console.error('错误堆栈:', error.stack);
+      console.error('完整错误对象:', JSON.stringify(error, null, 2));
 
-      // 尝试简化的查询方式
+      // 尝试最简化的查询方式
       try {
-        console.log('尝试简化查询...');
+        console.log('尝试最简化查询...');
         const web3 = Web3Config.getWeb3();
         const contract = new web3.eth.Contract(
           Web3Config.CONTRACT_CONFIG.abi,
           Web3Config.CONTRACT_CONFIG.address
         );
 
-        // 只查询最近100个区块
+        // 只查询最近10个区块
         const currentBlock = await web3.eth.getBlockNumber();
-        const fromBlock = Math.max(0, Number(currentBlock) - 100);
+        const fromBlock = Math.max(0, Number(currentBlock) - 10);
+
+        console.log('最简化查询区块范围:', fromBlock, 'to', currentBlock);
 
         const events = await contract.getPastEvents('GamePlayed', {
           fromBlock: fromBlock,
-          toBlock: 'latest'
+          toBlock: Number(currentBlock)
         });
+
+        console.log('最简化查询找到事件:', events.length);
 
         // 过滤出当前用户的记录
         const userEvents = events.filter(event =>
@@ -226,7 +240,7 @@ const LotteryGame = ({ account, onGameComplete }) => {
           event.returnValues.player.toLowerCase() === account.toLowerCase()
         );
 
-        console.log('简化查询找到用户事件:', userEvents.length);
+        console.log('最简化查询找到用户事件:', userEvents.length);
 
         if (userEvents.length > 0) {
           const gameHistory = userEvents.slice(-10).map((event) => ({
@@ -235,17 +249,22 @@ const LotteryGame = ({ account, onGameComplete }) => {
             symbols: Array.isArray(event.returnValues.symbols) ? event.returnValues.symbols : [event.returnValues.symbols],
             betAmount: event.returnValues.betAmount ? event.returnValues.betAmount.toString() : '0',
             winAmount: event.returnValues.winAmount ? event.returnValues.winAmount.toString() : '0',
-            timestamp: Date.now().toString(), // 使用当前时间
+            timestamp: Date.now().toString(),
             blockNumber: event.blockNumber,
             transactionHash: event.transactionHash
           })).reverse();
 
           setGameHistory(gameHistory);
         } else {
+          // 如果还是没有找到，显示一个提示信息
+          console.log('没有找到任何游戏记录，可能是新用户或者还没有游戏');
           setGameHistory([]);
         }
       } catch (fallbackError) {
-        console.error('简化查询也失败了:', fallbackError);
+        console.error('最简化查询也失败了:', fallbackError);
+        console.error('最终错误详情:', JSON.stringify(fallbackError, null, 2));
+
+        // 最后的备用方案：显示空记录
         setGameHistory([]);
       }
     } finally {
