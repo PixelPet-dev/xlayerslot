@@ -24,12 +24,12 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd frontend
+        cd frontend-en
         npm install
 
     - name: Build
       run: |
-        cd frontend
+        cd frontend-en
         npm run build
       env:
         CI: false
@@ -42,7 +42,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
       with:
-        path: ./frontend/build
+        path: ./frontend-en/build
 
     - name: Deploy to GitHub Pages
       id: deployment
