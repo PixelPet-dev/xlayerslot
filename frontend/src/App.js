@@ -180,7 +180,7 @@ function App() {
             <div className="flex items-center space-x-4">
               <div className="slot-symbol text-6xl">🎰</div>
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white neon-text" style={{textShadow: '0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 2px 2px 4px #000'}}>XLucky Slot</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-white">XLucky Slot</h1>
                 <p className="text-xs md:text-sm text-cyan-300 pixel-text">X Layer Casino</p>
               </div>
             </div>

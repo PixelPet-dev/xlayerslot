@@ -74,7 +74,7 @@ const ContractTest = () => {
         addResult('事件查询', '查询最近事件...');
         try {
           const currentBlock = await web3.eth.getBlockNumber();
-          const fromBlock = Math.max(0, Number(currentBlock) - 10); // 只查询最近10个区块
+          const fromBlock = Math.max(0, Number(currentBlock) - 50); // 查询最近50个区块
 
           addResult('事件查询', `查询区块范围: ${fromBlock} - ${currentBlock}`);
 

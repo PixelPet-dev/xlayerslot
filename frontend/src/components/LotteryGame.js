@@ -155,8 +155,8 @@ const LotteryGame = ({ account, onGameComplete }) => {
       const currentBlock = await web3.eth.getBlockNumber();
       console.log('当前区块号:', currentBlock);
 
-      // 大幅减少查询范围，避免查询过多数据
-      const fromBlock = Math.max(0, Number(currentBlock) - 100); // 只查询最近100个区块
+      // X Layer 网络限制：单次查询不能超过100个区块
+      const fromBlock = Math.max(0, Number(currentBlock) - 99); // 查询最近99个区块（保险起见）
       console.log('查询区块范围:', fromBlock, 'to latest');
 
       // 通过事件日志获取用户游戏记录
@@ -221,9 +221,9 @@ const LotteryGame = ({ account, onGameComplete }) => {
           Web3Config.CONTRACT_CONFIG.address
         );
 
-        // 只查询最近10个区块
+        // 只查询最近50个区块
         const currentBlock = await web3.eth.getBlockNumber();
-        const fromBlock = Math.max(0, Number(currentBlock) - 10);
+        const fromBlock = Math.max(0, Number(currentBlock) - 50);
 
         console.log('最简化查询区块范围:', fromBlock, 'to', currentBlock);
 
